@@ -1,0 +1,9 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=3479
+
+Use: makebg VIMSERVERNAME MAKEPRG MAKEEF
+Inside Vim, use the mapping:
+map <F12> :exec "!makebg" v:servername "'" . &makeprg . "'" &makeef<CR><CR>
+                                                                             
+Execute make in the background. Vim will automatically open the quickfix error window and jump the first error when make is done. The Vim mapping enables you to use your custom makeprg and makeef options, otherwise values are used. Errors from the current run of make are prepended to the previous errors. 
+This is Unix only (GNU/Linux, *BSD, Solaris, Mac OSX, Cygwin)
+
