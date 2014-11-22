@@ -8,8 +8,12 @@
 # if not supplied. Errors from the current run of make are prepended to the 
 # previous errors.
 # Changes:
+# version 1.2: Error list not opened for successful builds. This can be controlled with an option for warnings. Following suggestion from http://vim.wikia.com/wiki/Script:3479
 # version 1.1: Date prepended to error file
 # version 1.0: Initial version
+
+# Comment out to ignore warnings.
+LIST_WARNINGS=true
 
 makeef="${3:-errors.err}"
 makeef="${makeef#$PWD/}"    # remove path, if present
@@ -19,13 +23,30 @@ server="${1:-GVIM}"
 {
   touch "$makeef";
   echo '-----------------------------------------' >> ".$makeef"
-  date >> ".$makeef"
+  date | sed -e 's/:/-/g' >> ".$makeef"
   echo '-----------------------------------------' >> ".$makeef"
   # sed removes some words to prevent vim from misparsing a filename
-  $makeprg 2>&1 | sed -e's/In file included from //' >> ".$makeef";
+  MAKEOUT=$($makeprg 2>&1)
+  MAKE_SUCCESS="$?"
+  printf '%s' "$MAKEOUT" | sed -e's/In file included from //' >> ".$makeef";
   echo -e '\n\n' >> ".$makeef"
   cat "$makeef" >> ".$makeef"
   mv ".$makeef" "$makeef";
-  vim --servername "$server" --remote-send \
-    "<Esc>:cgetfile $PWD/$makeef |copen<CR><CR>" ;
+  if [ "$MAKE_SUCCESS" -eq 0 ]    # Successful build
+  then
+    if [[ $MAKEOUT == *warning* ]]
+    then
+      gvim --servername "$server" --remote-send \
+        '<Esc>:redraw | :echomsg "Build successful (with warnings)!"<CR>'
+    else
+      gvim --servername "$server" --remote-send \
+        '<Esc>:redraw | :echomsg "Build successful!"<CR>'
+      unset LIST_WARNINGS       # No warnings to list
+    fi
+  fi
+  if [[ "$MAKE_SUCCESS" -ne 0 || -v LIST_WARNINGS ]]  # Errors or warnings and listing required.
+  then
+    gvim --servername "$server" --remote-send \
+      "<Esc>:cgetfile $PWD/$makeef |copen<CR><CR>" ;
+  fi
 } &

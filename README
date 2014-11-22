@@ -4,7 +4,7 @@ Use: makebg VIMSERVER MAKEPRG MAKEEF
 Inside Vim, use this mapping for Fn12:
 map <F12> :exec "!makebg" v:servername "'" . &makeprg . "'" &makeef<CR><CR>
                                                                              
-Execute make in the background. Vim will automatically open the quickfix error window and jump to the first error when make is done. The mapping enables you to use your custom makeprg and makeef options, otherwise default values are used. Errors from the current run of make are prepended to the previous errors.  To clear previous errors, use this mapping for Shift + Fn12:
+Execute make in the background. Vim will automatically open the quickfix error window and jump to the first error or warning when make is done. If make is successful, you will just see a message. You can choose to ignore warnings by commenting out LIST_WARNINGS=true inside the script. The mapping enables you to use your custom makeprg and makeef options, otherwise default values are used. For example, you can use ninja instead of make by setting makeprg appropriately. Errors from the current run of make are prepended to the previous errors.  To clear previous errors, use this mapping for Shift + Fn12:
 map <S-F12> :exec "!rm " &makeef "; makebg" v:servername "'" . &makeprg . "'"  &makeef<CR><CR>
 Add these mappings to your vimrc for convenience.
 
